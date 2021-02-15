@@ -2,6 +2,7 @@ import React,{Component} from 'react'
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import Container from '@material-ui/core/Container';
 import ShowQuestionsPage from '../showQuestions/showQuestionsPage'
 import "./page.css"
 
@@ -65,7 +66,7 @@ class LandingPage extends Component{
         //const classes = this.useStyles();
         console.log("this.state is:",this.state)
         return(
-            <section>
+            <Container maxWidth="md">
                 {this.state.showForm && !this.state.showQuestions &&
                    (<form autoComplete="off">
                         <div className="landingPageTextfield">
@@ -86,9 +87,6 @@ class LandingPage extends Component{
                 }
                 {!this.state.showForm && this.state.showQuestions &&
                    (<div>
-                        <div>
-                        <p>Will implement thiss</p>
-                        </div>
                         <div className="landingPageTextfield">
                             <ShowQuestionsPage/>
                             <Button onClick={this.onClickBack} variant="contained" color="primary">
@@ -97,7 +95,7 @@ class LandingPage extends Component{
                         </div>
                     </div>)
                 }
-            </section>
+            </Container>
         );
     }
 }

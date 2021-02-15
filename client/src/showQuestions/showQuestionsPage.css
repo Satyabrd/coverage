@@ -1,0 +1,11 @@
+.cardClass{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.nextBtn{
+    float:right;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    margin-right: 10px;
+}

@@ -11,7 +11,8 @@ from flask_cors import CORS
 import time
 import logging
 import sys
-import paramiko
+from bson.json_util import dumps
+#import paramiko
 import pymongo
 from pymongo import MongoClient
 #import yamlordereddictloader
@@ -25,6 +26,13 @@ app = Flask(__name__)
 
 app.config['CORS_HEADERS'] = 'Content-Type'
 CORS(app, resources='/*', origins='*', allow_headers='*',expose_headers='Authorization')
+log_file_name='./logs/flask_server_' + str(time.strftime('%Y%m%dT%H%M%S')) + '.log'
+
+for handler in logging.root.handlers[:]:
+    logging.root.removeHandler(handler)
+logging.basicConfig(filename=log_file_name, level=logging.INFO)
+logging.info('Started server at ' + str(time.strftime("%Y-%m-%d %H:%M:%S")))
+logging.getLogger('CORS').level = logging.INFO
 hostname = 'afftserver-lnx'
 port = 22
 userId = ''
@@ -63,8 +71,46 @@ def execute_command(cmd):
         final_output.append(value.decode("utf-8"))
     return final_output
 
-@app.route("/table", methods=['POST'])
+@app.route("/table", methods=['GET'])
 def table():
+    logging.info('==========================================================================')
+    finalres = {}
+    finalres['values'] = []
+    user_list = []
+    logging.info(request.json)
+    connection = pymongo.MongoClient("mongodb://satyabrd:satyabrd@studentmarksheet-shard-00-00.uqbqs.mongodb.net:27017,studentmarksheet-shard-00-01.uqbqs.mongodb.net:27017,studentmarksheet-shard-00-02.uqbqs.mongodb.net:27017/coverage?ssl=true&replicaSet=atlas-82a9p1-shard-0&authSource=admin&retryWrites=true&w=majority")
+    logging.info("connection is %s"%connection)
+    db = connection["coverage"]
+    logging.info("db is %s"%db)
+    for coll in db.list_collection_names():
+        logging.info("collectionsss are %s"%coll)
+    db_collection = db["coverage"]
+    logging.info("db_collection is::",db_collection)
+    col = dumps(db_collection.find())
+    logging.info("col is %s"%col)
+    col = json.loads(col)
+    logging.info("col is %s"%col)
+    finalres['values'] = col
+    logging.info(finalres)
+    return jsonify(finalres)
+
+@app.route("/usertable", methods=['GET'])
+def tablev2():
+    logging.info('==========================================================================')
+    finalres = {}
+    finalres['values'] = []
+    user_list = []
+    logging.info(request.json)
+    connection = pymongo.MongoClient("mongodb://satyabrd:satyabrd@studentmarksheet-shard-00-00.uqbqs.mongodb.net:27017,studentmarksheet-shard-00-01.uqbqs.mongodb.net:27017,studentmarksheet-shard-00-02.uqbqs.mongodb.net:27017/coverage?ssl=true&replicaSet=atlas-82a9p1-shard-0&authSource=admin&retryWrites=true&w=majority")
+    db = connection.coverage
+    col = db.collection.find()
+    print(col)
+    finalres['values'].append(col)
+    logging.info(finalres)
+    return jsonify(finalres)
+
+@app.route("/usertable", methods=['POST'])
+def tablev3():
     logging.info('==========================================================================')
     finalres = {}
     finalres['values'] = []
@@ -77,6 +123,7 @@ def table():
     finalres.append(col)
     logging.info(finalres)
     return jsonify(finalres)
+
 
 def create_query(user,time,time_val):
     logging.info("time_val is : %s"%time_val)
